@@ -224,6 +224,15 @@ class JWT
         if ($keyId !== null) {
             $header['kid'] = $keyId;
         }
+        if (isset($payload['nbf']) && !\is_numeric($payload['nbf'])) {
+            throw new UnexpectedValueException('Payload nbf must be a number');
+        }
+        if (isset($payload['iat']) && !\is_numeric($payload['iat'])) {
+            throw new UnexpectedValueException('Payload iat must be a number');
+        }
+        if (isset($payload['exp']) && !\is_numeric($payload['exp'])) {
+            throw new UnexpectedValueException('Payload exp must be a number');
+        }
         $segments = [];
         $segments[] = static::urlsafeB64Encode((string) static::jsonEncode($header));
         $segments[] = static::urlsafeB64Encode((string) static::jsonEncode($payload));
