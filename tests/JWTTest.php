@@ -609,6 +609,45 @@ class JWTTest extends TestCase
         JWT::decode($payload, $this->hmacKey);
     }
 
+    public function testEncodeThrowsWhenIatIsNotNumeric(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Payload iat must be a number');
+
+        JWT::encode(['iat' => 'not-an-int'], $this->hmacKey->getKeyMaterial(), 'HS256');
+    }
+
+    public function testEncodeThrowsWhenNbfIsNotNumeric(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Payload nbf must be a number');
+
+        JWT::encode(['nbf' => 'not-an-int'], $this->hmacKey->getKeyMaterial(), 'HS256');
+    }
+
+    public function testEncodeThrowsWhenExpIsNotNumeric(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Payload exp must be a number');
+
+        JWT::encode(['exp' => 'not-an-int'], $this->hmacKey->getKeyMaterial(), 'HS256');
+    }
+
+    public function testEncodeAcceptsNumericStringTimestamps(): void
+    {
+        $payload = [
+            'message' => 'abc',
+            'iat' => (string) time(),
+            'exp' => (string) (time() + 20),
+            'nbf' => (string) (time() - 20),
+        ];
+
+        $encoded = JWT::encode($payload, $this->hmacKey->getKeyMaterial(), 'HS256');
+        $decoded = JWT::decode($encoded, $this->hmacKey);
+
+        $this->assertSame('abc', $decoded->message);
+    }
+
     public function testRsaKeyLengthValidationThrowsException(): void
     {
         $this->expectException(DomainException::class);

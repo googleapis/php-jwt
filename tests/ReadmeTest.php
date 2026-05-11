@@ -150,8 +150,9 @@ class ReadmeTest extends TestCase
 
         $codeblock = $this->extractCodeBlock('Using Cached Key Sets');
 
+        $jwk = json_decode(file_get_contents('https://www.gstatic.com/iap/verify/public_key-jwk'), true);
         $privateKey = file_get_contents(__DIR__ . '/data/ecdsa256-private.pem');
-        $jwt = JWT::encode($this->payload, $privateKey, 'ES256', '_xiGEQ');
+        $jwt = JWT::encode($this->payload, $privateKey, 'ES256', $jwk['keys'][0]['kid']);
 
         $codeblock->replace('eyJhbGci...', $jwt);
         $codeblock->invoke();
