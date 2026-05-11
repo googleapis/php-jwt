@@ -633,6 +633,21 @@ class JWTTest extends TestCase
         JWT::encode(['exp' => 'not-an-int'], $this->hmacKey->getKeyMaterial(), 'HS256');
     }
 
+    public function testEncodeAcceptsNumericStringTimestamps(): void
+    {
+        $payload = [
+            'message' => 'abc',
+            'iat' => (string) time(),
+            'exp' => (string) (time() + 20),
+            'nbf' => (string) (time() - 20),
+        ];
+
+        $encoded = JWT::encode($payload, $this->hmacKey->getKeyMaterial(), 'HS256');
+        $decoded = JWT::decode($encoded, $this->hmacKey);
+
+        $this->assertSame('abc', $decoded->message);
+    }
+
     public function testRsaKeyLengthValidationThrowsException(): void
     {
         $this->expectException(DomainException::class);
