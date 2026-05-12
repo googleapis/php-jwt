@@ -401,6 +401,35 @@ $decoded = JWT::decode($jwt, $keys);
 $decoded = json_decode(json_encode($decoded), true);
 ```
 
+Development
+-----
+As fast-setup you can use a container environment, e.g. `podman` or `docker`. To build, run following:
+
+```bash
+# podman
+$ podman build --tag php-jwt .
+# docker
+$ docker build --tag php-jwt .
+.....
+Successfully tagged localhost/php-jwt:latest
+```
+
+After that run the container and use to its shell:
+
+```bash
+# podman
+$ podman run -it -v .:/srv/app localhost/php-jwt:latest sh
+# docker
+$ docker run -it -v .:/srv/app localhost/php-jwt:latest sh
+```
+
+Now you can install the dependencies and e.g. run tests (see below):
+
+```bash
+$ composer install
+$ phpunit --configuration phpunit.xml.dist
+```
+
 Tests
 -----
 Run the tests using phpunit:

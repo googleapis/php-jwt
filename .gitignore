@@ -1,4 +1,5 @@
 vendor
+node_modules
 phpunit.phar
 phpunit.phar.asc
 composer.phar

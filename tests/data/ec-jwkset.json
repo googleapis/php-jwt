@@ -7,7 +7,11 @@
             "kid": "jwk1",
             "x": "ALXnvdCvbBx35J2bozBkIFHPT747KiYioLK4JquMhZU",
             "y": "fAt_rGPqS95Ytwdluh4TNWTmj9xkcAbKGBRpP5kuGBk",
-            "alg": "ES256"
+            "alg": "ES256",
+            "files": {
+                "private": "ecdsa-private.pem",
+                "public": "ecdsa-public.pem"
+            }
         },
         {
             "kty": "EC",
@@ -16,7 +20,11 @@
             "kid": "jwk2",
             "x": "mQa0q5FvxPRujxzFazQT1Mo2YJJzuKiXU3svOJ41jhw",
             "y": "jAz7UwIl2oOFk06kj42ZFMOXmGMFUGjKASvyYtibCH0",
-            "alg": "ES256"
+            "alg": "ES256",
+            "files": {
+                "private": "ecdsa256-private.pem",
+                "public": "ecdsa256-public.pem"
+            }
         },
         {
             "kty": "EC",
@@ -25,7 +33,11 @@
             "kid": "jwk3",
             "x": "EFpwNuP322bU3WP1DtJgx67L0CUV1MxNixqPVMH2L9Q",
             "y": "_fSTbijIJjpsqL16cIEvxxf3MaYMY8MbqEq066yV9ls",
-            "alg": "ES256K"
+            "alg": "ES256K",
+            "files": {
+                "private": "secp256k1-private.pem",
+                "public": "secp256k1-public.pem"
+            }
         },
         {
             "kty": "EC",
@@ -34,7 +46,24 @@
             "kid": "jwk4",
             "x": "FhXXcyKmWkTkdVbWYYU3dtJqpJ0JmLGftEdNzUEFEKSU5MlnLr_FjcneszvXAqEB",
             "y": "M4veJF_dO_zhFk44bh_ELXbp0_nn9QaViVtQpuTvpu29eefx6PfUMqX0K--IS4NQ",
-            "alg": "ES384"
+            "alg": "ES384",
+            "files": {
+                "private": "ecdsa384-private.pem",
+                "public": "ecdsa384-public.pem"
+            }
+        },
+        {
+            "kty": "EC",
+            "use": "sig",
+            "crv": "P-521",
+            "kid": "jwk5",
+            "x": "AJ1sHaYL3ylcmvH_v2-m7JgdsAqKHDgFgvZa5VdFSGVJ0grIpFVsDLzvlkDQS4O7pYlf7LvlSSkiUERowd-iLM6r",
+            "y": "AOCilHrpEwo4r2ugX7HQHf5liR8BQM68CNk53jFgQTBgaRv_WO0lfBAyrIN7j_3l7vr8zNcOh6MydtIW78M6Jhnp",
+            "alg": "ES512",
+            "files": {
+                "private": "ecdsa512-private.pem",
+                "public": "ecdsa512-public.pem"
+            }
         }
     ]
 }

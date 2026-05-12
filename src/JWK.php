@@ -28,7 +28,7 @@ class JWK
         'P-256' => '1.2.840.10045.3.1.7', // Len: 64
         'secp256k1' => '1.3.132.0.10', // Len: 64
         'P-384' => '1.3.132.0.34', // Len: 96
-        // 'P-521' => '1.3.132.0.35', // Len: 132 (not supported)
+        'P-521' => '1.3.132.0.35', // Len: 132
     ];
 
     // For keys with "kty" equal to "OKP" (Octet Key Pair), the "crv" parameter must contain the key subtype.
@@ -188,7 +188,7 @@ class JWK
     /**
      * Converts the EC JWK values to pem format.
      *
-     * @param   string  $crv The EC curve (only P-256 & P-384 is supported)
+     * @param   string  $crv The EC curve (only P-256, P-384 & P-521 is supported)
      * @param   string  $x   The EC x-coordinate
      * @param   string  $y   The EC y-coordinate
      *
@@ -196,6 +196,12 @@ class JWK
      */
     private static function createPemFromCrvAndXYCoordinates(string $crv, string $x, string $y): string
     {
+        $coordinates = match ($crv) {
+            '1-P-521' => \str_pad(JWT::urlsafeB64Decode($x), 66, "\x00", STR_PAD_LEFT) . \str_pad(JWT::urlsafeB64Decode($y), 66, "\x00", STR_PAD_LEFT),
+            '0-P-521' => \str_pad(JWT::urlsafeB64Decode($x) . JWT::urlsafeB64Decode($y), 132, "\x00", STR_PAD_LEFT),
+            default => JWT::urlsafeB64Decode($x) . JWT::urlsafeB64Decode($y),
+        };
+
         $pem =
             self::encodeDER(
                 self::ASN1_SEQUENCE,
@@ -213,8 +219,7 @@ class JWK
                 self::encodeDER(
                     self::ASN1_BIT_STRING,
                     \chr(0x00) . \chr(0x04)
-                    . JWT::urlsafeB64Decode($x)
-                    . JWT::urlsafeB64Decode($y)
+                    . $coordinates
                 )
             );
 
