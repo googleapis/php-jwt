@@ -24,7 +24,8 @@
     },
     "suggest": {
         "paragonie/sodium_compat": "Support EdDSA (Ed25519) signatures when libsodium is not present",
-        "ext-sodium": "Support EdDSA (Ed25519) signatures"
+        "ext-sodium": "Support EdDSA (Ed25519) signatures",
+        "phpseclib/phpseclib": "Support PS256 (RSASSA-PSS) signatures"
     },
     "autoload": {
         "psr-4": {
@@ -38,6 +39,7 @@
         "psr/cache": "^2.0||^3.0",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.0",
-        "phpfastcache/phpfastcache": "^9.2"
+        "phpfastcache/phpfastcache": "^9.2",
+        "phpseclib/phpseclib": "~3.0"
     }
 }

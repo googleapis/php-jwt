@@ -440,6 +440,60 @@ class JWTTest extends TestCase
         $this->assertEquals($decoded, $expected);
     }
 
+    public function testPSEncodeDecode()
+    {
+        $privKey = openssl_pkey_new([
+            'digest_alg' => 'sha256',
+            'private_key_bits' => 2048,
+            'private_key_type' => OPENSSL_KEYTYPE_RSA
+        ]);
+        openssl_pkey_export($privKey, $privKeyPem);
+        $pubKeyDetails = openssl_pkey_get_details($privKey);
+        $pubKeyPem = $pubKeyDetails['key'];
+
+        $payload = ['message' => 'abc'];
+        $msg = JWT::encode($payload, $privKeyPem, 'PS256');
+        $decoded = JWT::decode($msg, new Key($pubKeyPem, 'PS256'));
+
+        $this->assertEquals($decoded, (object) $payload);
+    }
+
+    public function testPSEncodeDecodeWithOpenSSLKey()
+    {
+        $privKey = openssl_pkey_new([
+            'digest_alg' => 'sha256',
+            'private_key_bits' => 2048,
+            'private_key_type' => OPENSSL_KEYTYPE_RSA
+        ]);
+        $pubKey = openssl_pkey_get_public(openssl_pkey_get_details($privKey)['key']);
+
+        $payload = ['message' => 'abc'];
+        $msg = JWT::encode($payload, $privKey, 'PS256');
+        $decoded = JWT::decode($msg, new Key($pubKey, 'PS256'));
+
+        $this->assertEquals($decoded, (object) $payload);
+    }
+
+    public function testPSVerifyWithCertificate()
+    {
+        $privKey = openssl_pkey_new([
+            'digest_alg' => 'sha256',
+            'private_key_bits' => 2048,
+            'private_key_type' => OPENSSL_KEYTYPE_RSA
+        ]);
+
+        $csr = openssl_csr_new(['commonName' => 'example.com'], $privKey);
+        $cert = openssl_csr_sign($csr, null, $privKey, 1);
+
+        $payload = ['message' => 'abc'];
+        $msg = JWT::encode($payload, $privKey, 'PS256');
+
+        // Use certificate for verification
+        $decoded = JWT::decode($msg, new Key($cert, 'PS256'));
+
+        $this->assertEquals($decoded, (object) $payload);
+    }
+
     public function testEdDsaEncodeDecode()
     {
         $keyPair = sodium_crypto_sign_keypair();
