@@ -31,6 +31,15 @@ class JWK
         // 'P-521' => '1.3.132.0.35', // Len: 132 (not supported)
     ];
 
+    // Known standard curves from the IANA JOSE registry which are not supported
+    private const KNOWN_UNSUPPORTED_EC_CURVES = [
+        'P-521',   // RFC 7518
+        'Ed25519', // RFC 8037
+        'Ed448',   // RFC 8037
+        'X25519',  // RFC 8037
+        'X448'     // RFC 8037
+    ];
+
     // For keys with "kty" equal to "OKP" (Octet Key Pair), the "crv" parameter must contain the key subtype.
     // This library supports the following subtypes:
     private const OKP_SUBTYPES = [
@@ -142,7 +151,10 @@ class JWK
                 }
 
                 if (!isset(self::EC_CURVES[$jwk['crv']])) {
-                    throw new DomainException('Unrecognised or unsupported EC curve');
+                    if (!in_array($jwk['crv'], self::KNOWN_UNSUPPORTED_EC_CURVES)) {
+                        throw new DomainException('Unrecognised EC curve');
+                    }
+                    return null;
                 }
 
                 if (empty($jwk['x']) || empty($jwk['y'])) {

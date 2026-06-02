@@ -2,6 +2,7 @@
 
 namespace Firebase\JWT;
 
+use DomainException;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use UnexpectedValueException;
@@ -134,6 +135,38 @@ class JWKTest extends TestCase
         $this->expectExceptionMessage('JWK Set did not contain any keys');
 
         JWK::parseKeySet(['keys' => []]);
+    }
+
+    public function testParseJwkKeySetWithValidButUnsupportedCurveDoesNotThrowException()
+    {
+        $jwkSet = json_decode(
+            file_get_contents(__DIR__ . '/data/unsupported-alg-keyset.json'),
+            true
+        );
+
+        $this->assertCount(3, $jwkSet['keys']);
+
+        $keys = JWK::parseKeySet($jwkSet);
+
+        $this->assertCount(2, $keys);
+        $this->assertArrayHasKey('jwk1', $keys);
+        $this->assertArrayHasKey('jwk2', $keys);
+        $this->assertArrayNotHasKey('unsupported-ec-curve', $keys);
+    }
+
+    public function testParseJwkKeySetWithInvalidCurveThrowsException()
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Unrecognised EC curve');
+
+        $jwkSet = json_decode(
+            file_get_contents(__DIR__ . '/data/unsupported-alg-keyset.json'),
+            true
+        );
+
+        $jwkSet['keys'][2]['crv'] = 'invalid-curve';
+
+        $keys = JWK::parseKeySet($jwkSet);
     }
 
     /**
