@@ -151,7 +151,7 @@ class JWK
                 }
 
                 if (!isset(self::EC_CURVES[$jwk['crv']])) {
-                    if (!in_array($jwk['crv'], self::KNOWN_UNSUPPORTED_EC_CURVES)) {
+                    if (!\in_array($jwk['crv'], self::KNOWN_UNSUPPORTED_EC_CURVES)) {
                         throw new DomainException('Unrecognised EC curve');
                     }
                     return null;
