@@ -283,6 +283,9 @@ echo "Decode 2:\n" . print_r((array) $decoded2, true) . "\n";
 
 ### Note
 PHP's OpenSSL extension does not support RSASSA-PSS signatures (PS256) by default, so we provide support via a soft dependency on the [phpseclib/phpseclib](https://github.com/phpseclib/phpseclib) library. It is necessary to install this library in your project if you plan to use PS256.
+```bash
+composer install phpseclib/phpseclib:^3.0
+```
 
 ```php
 use Firebase\JWT\JWT;

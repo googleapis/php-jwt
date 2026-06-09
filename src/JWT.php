@@ -783,10 +783,6 @@ class JWT
                 throw new DomainException('OpenSSL unable to export the AsymmetricKey');
             }
             $key = $pem;
-        } elseif (!\is_string($key)) {
-            throw new DomainException(
-                'The key needs to be an instance of string|OpenSSLAsymmetricKey|OpenSSLCertificate.'
-            );
         }
 
         /** @var \phpseclib3\Crypt\RSA\PrivateKey $rsa */
@@ -825,10 +821,6 @@ class JWT
                 throw new DomainException('OpenSSL unable to export certificate');
             }
             $key = $pem;
-        } elseif (!\is_string($key)) {
-            throw new DomainException(
-                'The key needs to be an instance of string|OpenSSLAsymmetricKey|OpenSSLCertificate.'
-            );
         }
 
         /** @var \phpseclib3\Crypt\RSA\PublicKey $rsa */
