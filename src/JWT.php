@@ -107,7 +107,7 @@ class JWT
         if (empty($keyOrKeyArray)) {
             throw new InvalidArgumentException('Key may not be empty');
         }
-        $tks = \explode('.', $jwt);
+        $tks = \explode('.', $jwt, 4);
         if (\count($tks) !== 3) {
             throw new UnexpectedValueException('Wrong number of segments');
         }
