@@ -112,14 +112,22 @@ class JWT
             throw new UnexpectedValueException('Wrong number of segments');
         }
         list($headb64, $bodyb64, $cryptob64) = $tks;
-        $headerRaw = static::urlsafeB64Decode($headb64);
+        try {
+            $headerRaw = static::urlsafeB64Decode($headb64);
+        } catch (InvalidArgumentException $e) {
+            throw new UnexpectedValueException('Unable to decode header');
+        }
         if (null === ($header = static::jsonDecode($headerRaw))) {
             throw new UnexpectedValueException('Invalid header encoding');
         }
         if ($headers !== null) {
             $headers = $header;
         }
-        $payloadRaw = static::urlsafeB64Decode($bodyb64);
+        try {
+            $payloadRaw = static::urlsafeB64Decode($bodyb64);
+        } catch (InvalidArgumentException $e) {
+            throw new UnexpectedValueException('Unable to decode payload');
+        }
         if (null === ($payload = static::jsonDecode($payloadRaw))) {
             throw new UnexpectedValueException('Invalid claims encoding');
         }
@@ -139,8 +147,13 @@ class JWT
         if (isset($payload->exp) && !\is_numeric($payload->exp)) {
             throw new UnexpectedValueException('Payload exp must be a number');
         }
-
-        $sig = static::urlsafeB64Decode($cryptob64);
+      
+        try {
+            $sig = static::urlsafeB64Decode($cryptob64);
+        } catch (InvalidArgumentException $e) {
+            throw new UnexpectedValueException('Unable to decode signature');
+        }
+      
         if (empty($header->alg)) {
             throw new UnexpectedValueException('Empty algorithm');
         }
@@ -427,11 +440,18 @@ class JWT
      *
      * @return string A decoded string
      *
-     * @throws InvalidArgumentException invalid base64 characters
+     * @throws InvalidArgumentException invalid base64URL characters
      */
     public static function urlsafeB64Decode(string $input): string
     {
-        return \base64_decode(self::convertBase64UrlToBase64($input));
+        if (strpbrk($input, '+/=') !== false) {
+            throw new InvalidArgumentException('Input is not valid Base64URL');
+        }
+        $result = \base64_decode(self::convertBase64UrlToBase64($input), true);
+        if ($result === false) {
+            throw new InvalidArgumentException('Input is not valid Base64URL');
+        }
+        return $result;
     }
 
     /**
