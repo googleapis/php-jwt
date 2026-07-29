@@ -52,6 +52,21 @@ class JWT
     public static $timestamp = null;
 
     /**
+     * When true, the 'iat', 'nbf' and 'exp' claims are interpreted as
+     * millisecond timestamps rather than the seconds mandated by RFC 7519.
+     *
+     * Some non-compliant token issuers emit these claims in milliseconds.
+     * Enabling this makes the reference time default to milliseconds
+     * (microtime(true) * 1000) so claims are compared in the same unit.
+     *
+     * NOTE: When enabled, `JWT::$timestamp` and `JWT::$leeway` must also be
+     * expressed in milliseconds if you set them.
+     *
+     * @var bool
+     */
+    public static $useMillisecondTimestamps = false;
+
+    /**
      * @var array<string, string[]>
      */
     public static $supported_algs = [
@@ -102,7 +117,13 @@ class JWT
         ?stdClass &$headers = null
     ): stdClass {
         // Validate JWT
-        $timestamp = \is_null(static::$timestamp) ? \time() : static::$timestamp;
+        if (!\is_null(static::$timestamp)) {
+            $timestamp = static::$timestamp;
+        } elseif (static::$useMillisecondTimestamps) {
+            $timestamp = (int) (\microtime(true) * 1000);
+        } else {
+            $timestamp = \time();
+        }
 
         if (empty($keyOrKeyArray)) {
             throw new InvalidArgumentException('Key may not be empty');
@@ -167,7 +188,7 @@ class JWT
         // token can actually be used. If it's not yet that time, abort.
         if (isset($payload->nbf) && floor($payload->nbf) > ($timestamp + static::$leeway)) {
             $ex = new BeforeValidException(
-                'Cannot handle token with nbf prior to ' . \date(DateTime::ATOM, (int) floor($payload->nbf))
+                'Cannot handle token with nbf prior to ' . \date(DateTime::ATOM, self::claimToSeconds($payload->nbf))
             );
             $ex->setPayload($payload);
             throw $ex;
@@ -178,7 +199,7 @@ class JWT
         // correctly used the nbf claim).
         if (!isset($payload->nbf) && isset($payload->iat) && floor($payload->iat) > ($timestamp + static::$leeway)) {
             $ex = new BeforeValidException(
-                'Cannot handle token with iat prior to ' . \date(DateTime::ATOM, (int) floor($payload->iat))
+                'Cannot handle token with iat prior to ' . \date(DateTime::ATOM, self::claimToSeconds($payload->iat))
             );
             $ex->setPayload($payload);
             throw $ex;
@@ -544,6 +565,24 @@ class JWT
             ? $messages[$errno]
             : 'Unknown JSON error: ' . $errno
         );
+    }
+
+    /**
+     * Convert a date claim to whole seconds for human-readable output,
+     * accounting for `JWT::$useMillisecondTimestamps`.
+     *
+     * @param int|float|string $claim The 'iat', 'nbf' or 'exp' claim value.
+     *
+     * @return int Unix timestamp in seconds.
+     */
+    private static function claimToSeconds($claim): int
+    {
+        $seconds = (float) $claim;
+        if (static::$useMillisecondTimestamps) {
+            $seconds /= 1000;
+        }
+
+        return (int) \floor($seconds);
     }
 
     /**

@@ -310,6 +310,90 @@ class JWTTest extends TestCase
         JWT::decode($encoded, $this->hmacKey);
     }
 
+    /**
+     * @runInSeparateProcess
+     */
+    public function testValidTokenWithMillisecondTimestamps()
+    {
+        JWT::$useMillisecondTimestamps = true;
+        $nowMs = (int) (microtime(true) * 1000);
+        $payload = [
+            'message' => 'abc',
+            'iat' => $nowMs,
+            'exp' => $nowMs + 20000, // 20s in the future, in ms
+        ];
+        $encoded = JWT::encode($payload, $this->hmacKey->getKeyMaterial(), 'HS256');
+        $decoded = JWT::decode($encoded, $this->hmacKey);
+        $this->assertSame('abc', $decoded->message);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testMillisecondIatIsRejectedWithoutFlag()
+    {
+        $this->expectException(BeforeValidException::class);
+        $this->expectExceptionMessage('Cannot handle token with iat prior to');
+        $payload = [
+            'message' => 'abc',
+            'iat' => (int) (microtime(true) * 1000), // ms timestamp, but flag disabled
+        ];
+        $encoded = JWT::encode($payload, $this->hmacKey->getKeyMaterial(), 'HS256');
+        JWT::decode($encoded, $this->hmacKey);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testExpiredTokenWithMillisecondTimestamps()
+    {
+        $this->expectException(ExpiredException::class);
+        JWT::$useMillisecondTimestamps = true;
+        $payload = [
+            'message' => 'abc',
+            'exp' => (int) (microtime(true) * 1000) - 20000, // 20s in the past, in ms
+        ];
+        $encoded = JWT::encode($payload, $this->hmacKey->getKeyMaterial(), 'HS256');
+        JWT::decode($encoded, $this->hmacKey);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testBeforeValidTokenWithMillisecondNbf()
+    {
+        $this->expectException(BeforeValidException::class);
+        $this->expectExceptionMessage('Cannot handle token with nbf prior to');
+        JWT::$useMillisecondTimestamps = true;
+        $payload = [
+            'message' => 'abc',
+            'nbf' => (int) (microtime(true) * 1000) + 20000, // 20s in the future, in ms
+        ];
+        $encoded = JWT::encode($payload, $this->hmacKey->getKeyMaterial(), 'HS256');
+        JWT::decode($encoded, $this->hmacKey);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testMillisecondExceptionMessageRendersCorrectDate()
+    {
+        JWT::$useMillisecondTimestamps = true;
+        // 2033-05-18T03:33:20+00:00 expressed in milliseconds
+        $iatMs = 2000000000 * 1000;
+        $payload = [
+            'message' => 'abc',
+            'iat' => $iatMs,
+        ];
+        $encoded = JWT::encode($payload, $this->hmacKey->getKeyMaterial(), 'HS256');
+        try {
+            JWT::decode($encoded, $this->hmacKey);
+            $this->fail('Expected BeforeValidException was not thrown');
+        } catch (BeforeValidException $e) {
+            $this->assertStringContainsString('2033-05-18T03:33:20+00:00', $e->getMessage());
+        }
+    }
+
     public function testInvalidToken()
     {
         $encodeKey = $this->generateHmac256();

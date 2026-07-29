@@ -70,6 +70,24 @@ JWT::$leeway = 60; // $leeway in seconds
 $decoded = JWT::decode($jwt, new Key($key, 'HS256'));
 ```
 
+### Millisecond timestamps
+
+RFC 7519 requires the `iat`, `nbf` and `exp` claims to be expressed in
+**seconds** since the Unix epoch. Some non-compliant token issuers emit these
+claims in **milliseconds** instead, which causes `decode` to reject the token
+(for example, throwing `Cannot handle token with iat prior to ...` with a date
+far in the future).
+
+If you must consume such tokens, opt in by enabling millisecond mode. When
+enabled, the reference time defaults to milliseconds
+(`microtime(true) * 1000`), so claims are compared in the same unit. If you also
+set `JWT::$timestamp` or `JWT::$leeway`, express them in milliseconds too.
+
+```php
+JWT::$useMillisecondTimestamps = true;
+$decoded = JWT::decode($jwt, new Key($key, 'HS256'));
+```
+
 ## Example encode/decode headers
 
 Decoding the JWT headers without verifying the JWT first is NOT recommended, and is not supported by
