@@ -6,7 +6,7 @@ class ExpiredException extends \UnexpectedValueException implements JWTException
 {
     private object $payload;
 
-    private ?int $timestamp = null;
+    private int|float|null $timestamp = null;
 
     public function setPayload(object $payload): void
     {
@@ -18,12 +18,16 @@ class ExpiredException extends \UnexpectedValueException implements JWTException
         return $this->payload;
     }
 
-    public function setTimestamp(int $timestamp): void
+    /**
+     * @param int|float $timestamp Seconds, or milliseconds when
+     *                             JWT::$useMillisecondTimestamps is enabled.
+     */
+    public function setTimestamp(int|float $timestamp): void
     {
         $this->timestamp = $timestamp;
     }
 
-    public function getTimestamp(): ?int
+    public function getTimestamp(): int|float|null
     {
         return $this->timestamp;
     }

@@ -47,7 +47,7 @@ class JWT
      * Useful for fixing a value within unit testing.
      * Will default to PHP time() value if null.
      *
-     * @var ?int
+     * @var int|float|null
      */
     public static $timestamp = null;
 
@@ -120,7 +120,9 @@ class JWT
         if (!\is_null(static::$timestamp)) {
             $timestamp = static::$timestamp;
         } elseif (static::$useMillisecondTimestamps) {
-            $timestamp = (int) (\microtime(true) * 1000);
+            // Keep the value as a float to avoid integer overflow on 32-bit
+            // systems, where a millisecond timestamp exceeds PHP_INT_MAX.
+            $timestamp = \round(\microtime(true) * 1000);
         } else {
             $timestamp = \time();
         }
