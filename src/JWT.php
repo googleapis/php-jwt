@@ -42,7 +42,17 @@ class JWT
      * expressed in milliseconds.
      *
      * @var int
+    /**
+     * When checking nbf, iat or expiration times,
+     * we want to provide some extra leeway time to
+     * account for clock skew.
+     * 
+     * NOTE: When `JWT::$useMillisecondTimestamps` is enabled, 
+     * this must be expressed in milliseconds.
+     *
+     * @var int
      */
+    public static $leeway = 0;
     public static $leeway = 0;
 
     /**
