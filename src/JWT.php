@@ -38,6 +38,9 @@ class JWT
      * we want to provide some extra leeway time to
      * account for clock skew.
      *
+     * When `JWT::$useMillisecondTimestamps` is enabled, this must be
+     * expressed in milliseconds.
+     *
      * @var int
      */
     public static $leeway = 0;

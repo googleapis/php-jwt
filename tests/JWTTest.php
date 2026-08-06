@@ -330,6 +330,27 @@ class JWTTest extends TestCase
     /**
      * @runInSeparateProcess
      */
+    public function testValidTokenWithMillisecondTimestampsAndExplicitOverrides()
+    {
+        JWT::$useMillisecondTimestamps = true;
+        // Fix "now" to a value that exceeds 32-bit PHP_INT_MAX, expressed in ms.
+        JWT::$timestamp = 1710000000000; // 2024-03-09T16:00:00Z in ms
+        JWT::$leeway = 60000; // 60s of leeway, in ms
+        $payload = [
+            'message' => 'abc',
+            // exp is 30s in the past, but within the 60s (ms) leeway window.
+            'exp' => JWT::$timestamp - 30000,
+            // nbf is 30s in the future, also within the leeway window.
+            'nbf' => JWT::$timestamp + 30000,
+        ];
+        $encoded = JWT::encode($payload, $this->hmacKey->getKeyMaterial(), 'HS256');
+        $decoded = JWT::decode($encoded, $this->hmacKey);
+        $this->assertSame('abc', $decoded->message);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
     public function testMillisecondIatIsRejectedWithoutFlag()
     {
         $this->expectException(BeforeValidException::class);
