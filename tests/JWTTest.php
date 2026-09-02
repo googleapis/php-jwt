@@ -323,6 +323,21 @@ class JWTTest extends TestCase
         JWT::decode($encoded, $decodeKey);
     }
 
+    public function testInvalidTokenSegments()
+    {
+        $dummyToken = 'dGhlIHZhbHVlIGRvZXNuJ3QgbWF0dGVy.T25seSB0aGUgbnVtYmVyIG9mIHNlZ21lbnRz.VGhpcyBzaG91bGQgYmUgYSBzaWduYXR1cmU.YnV0IHRoZXJlIGlzIG1vcmU';
+        $this->expectException(UnexpectedValueException::class);
+        JWT::decode($dummyToken, $this->hmacKey);
+    }
+
+    public function testInvalidTokenManySegments()
+    {
+        $dummyToken = 'dGhlIHZhbHVlIGRvZXNuJ3QgbWF0dGVy.T25seSB0aGUgbnVtYmVyIG9mIHNlZ21lbnRz.VGhpcyBzaG91bGQgYmUgYSBzaWduYXR1cmU';
+        $dummyToken .= str_repeat('.KzE', 999999);
+        $this->expectException(UnexpectedValueException::class);
+        JWT::decode($dummyToken, $this->hmacKey);
+    }
+
     public function testNullKeyFails()
     {
         $payload = [
