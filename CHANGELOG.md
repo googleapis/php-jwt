@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.1.1](https://github.com/googleapis/php-jwt/compare/v7.1.0...v7.1.1) (2026-09-02)
+
+
+### Bug Fixes
+
+* Limit the number of segments a JWT can be exploded into ([#639](https://github.com/googleapis/php-jwt/issues/639)) ([93d248c](https://github.com/googleapis/php-jwt/commit/93d248c650aea615d74a5ffa20c91c7a818e9b8d))
+
 ## [7.1.0](https://github.com/googleapis/php-jwt/compare/v7.0.5...v7.1.0) (2026-06-11)
 
 
