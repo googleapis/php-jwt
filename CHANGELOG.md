@@ -1,5 +1,19 @@
 # Changelog
 
+## [7.1.0](https://github.com/googleapis/php-jwt/compare/v7.0.5...v7.1.0) (2026-06-11)
+
+
+### Features
+
+* Add support for PS256 ([#637](https://github.com/googleapis/php-jwt/issues/637)) ([aa0b447](https://github.com/googleapis/php-jwt/commit/aa0b4472c137255545b177a1840891304eac55f1))
+
+
+### Bug Fixes
+
+* Skip parsing valid unsupported curves ([#638](https://github.com/googleapis/php-jwt/issues/638)) ([8a6c2a7](https://github.com/googleapis/php-jwt/commit/8a6c2a75d7f45e781c93d618939f8a045fe69f53))
+* Update homepage URL in composer.json ([#635](https://github.com/googleapis/php-jwt/issues/635)) ([f7ae571](https://github.com/googleapis/php-jwt/commit/f7ae571efe255aed89c8f8d0f2cb7f71c5835664))
+* Validate numeric type of iat, nbf and exp claims in encode ([#634](https://github.com/googleapis/php-jwt/issues/634)) ([958e422](https://github.com/googleapis/php-jwt/commit/958e422961e874843a7fcc339e55a0101a66201d))
+
 ## [7.0.5](https://github.com/firebase/php-jwt/compare/v7.0.4...v7.0.5) (2026-03-31)
 
 
