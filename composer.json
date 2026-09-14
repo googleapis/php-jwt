@@ -34,12 +34,20 @@
     },
     "require-dev": {
         "guzzlehttp/guzzle": "^7.4||^8.0",
-        "phpspec/prophecy-phpunit": "^2.0",
+        "phpspec/prophecy-phpunit": "^2.2",
         "phpunit/phpunit": "^9.5",
         "psr/cache": "^2.0||^3.0",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.0",
         "phpfastcache/phpfastcache": "^9.2",
         "phpseclib/phpseclib": "~3.0"
+    },
+     "extra": {
+        "component": {
+        "id": "jwt",
+        "target": "googleapis/php-jwt.git",
+        "path": "Jwt",
+        "entry": "README.md"
+        }
     }
 }

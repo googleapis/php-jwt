@@ -325,14 +325,19 @@ class JWTTest extends TestCase
 
     public function testInvalidTokenSegments()
     {
-        $dummyToken = 'dGhlIHZhbHVlIGRvZXNuJ3QgbWF0dGVy.T25seSB0aGUgbnVtYmVyIG9mIHNlZ21lbnRz.VGhpcyBzaG91bGQgYmUgYSBzaWduYXR1cmU.YnV0IHRoZXJlIGlzIG1vcmU';
+        $dummyToken = 'dGhlIHZhbHVlIGRvZXNuJ3QgbWF0dGVy' .
+            '.T25seSB0aGUgbnVtYmVyIG9mIHNlZ21lbnRz.' .
+            'VGhpcyBzaG91bGQgYmUgYSBzaWduYXR1cmU.' .
+            'YnV0IHRoZXJlIGlzIG1vcmU';
         $this->expectException(UnexpectedValueException::class);
         JWT::decode($dummyToken, $this->hmacKey);
     }
 
     public function testInvalidTokenManySegments()
     {
-        $dummyToken = 'dGhlIHZhbHVlIGRvZXNuJ3QgbWF0dGVy.T25seSB0aGUgbnVtYmVyIG9mIHNlZ21lbnRz.VGhpcyBzaG91bGQgYmUgYSBzaWduYXR1cmU';
+        $dummyToken = 'dGhlIHZhbHVlIGRvZXNuJ3QgbWF0dGVy.' .
+            'T25seSB0aGUgbnVtYmVyIG9mIHNlZ21lbnRz.' .
+            'VGhpcyBzaG91bGQgYmUgYSBzaWduYXR1cmU';
         $dummyToken .= str_repeat('.KzE', 999999);
         $this->expectException(UnexpectedValueException::class);
         JWT::decode($dummyToken, $this->hmacKey);
@@ -412,7 +417,13 @@ class JWTTest extends TestCase
 
     public function testAdditionalHeaders()
     {
-        $msg = JWT::encode(['message' => 'abc'], $this->hmacKey->getKeyMaterial(), 'HS256', null, ['cty' => 'test-eit;v=1']);
+        $msg = JWT::encode(
+            ['message' => 'abc'],
+            $this->hmacKey->getKeyMaterial(),
+            'HS256',
+            null,
+            ['cty' => 'test-eit;v=1']
+        );
         $expected = new stdClass();
         $expected->message = 'abc';
         $this->assertEquals(JWT::decode($msg, $this->hmacKey), $expected);
@@ -426,7 +437,8 @@ class JWTTest extends TestCase
 
     public function testInvalidSignatureEncoding()
     {
-        $msg = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwibmFtZSI6ImZvbyJ9.Q4Kee9E8o0Xfo4ADXvYA8t7dN_X_bU9K5w6tXuiSjlUxx';
+        $msg = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwibmFtZSI6ImZvbyJ9.' .
+            'Q4Kee9E8o0Xfo4ADXvYA8t7dN_X_bU9K5w6tXuiSjlUxx';
         $this->expectException(UnexpectedValueException::class);
         JWT::decode($msg, $this->hmacKey);
     }
