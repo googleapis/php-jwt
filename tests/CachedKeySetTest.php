@@ -345,7 +345,7 @@ class CachedKeySetTest extends TestCase
             $this->testJwksUri,
             $this->getMockHttpClient($this->testJwks1, $shouldBeCalledTimes),
             $this->getMockHttpFactory($shouldBeCalledTimes),
-            new TestMemoryCacheItemPool(),
+            $this->getTestMemoryCacheItemPool(),
             10,  // expires after seconds
             true // enable rate limiting
         );
@@ -367,7 +367,7 @@ class CachedKeySetTest extends TestCase
 
         $totalHttpTimes = $shouldBeCalledTimes + $afterExpirationTimes;
 
-        $cachePool = new TestMemoryCacheItemPool();
+        $cachePool = $this->getTestMemoryCacheItemPool();
 
         // Instantiate the cached key set
         $cachedKeySet = new CachedKeySet(
@@ -415,7 +415,7 @@ class CachedKeySetTest extends TestCase
             self::markTestSkipped('Guzzle 7 only');
         }
         // Create cache and http objects
-        $cache = new TestMemoryCacheItemPool();
+        $cache = $this->getTestMemoryCacheItemPool();
         $http = new \GuzzleHttp\Client();
         $factory = new \GuzzleHttp\Psr7\HttpFactory();
 
@@ -502,148 +502,148 @@ class CachedKeySetTest extends TestCase
 
         return $cache->reveal();
     }
-}
 
-/**
- * A cache item pool
- */
-final class TestMemoryCacheItemPool implements CacheItemPoolInterface
-{
-    private $items;
-    private $deferredItems;
-
-    public function getItem($key): CacheItemInterface
+    private function getTestMemoryCacheItemPool()
     {
-        $item = current($this->getItems([$key]));
-        $item->expiresAt(null); // mimic symfony cache behavior
+        return new class() implements CacheItemPoolInterface {
+            private $items;
+            private $deferredItems;
 
-        return $item;
-    }
+            public function getItem($key): CacheItemInterface
+            {
+                $item = current($this->getItems([$key]));
+                $item->expiresAt(null); // mimic symfony cache behavior
 
-    public function getItems(array $keys = []): iterable
-    {
-        $items = [];
+                return $item;
+            }
 
-        foreach ($keys as $key) {
-            $items[$key] = $this->hasItem($key) ? clone $this->items[$key] : new TestMemoryCacheItem($key);
-        }
+            public function getItems(array $keys = []): iterable
+            {
+                $items = [];
 
-        return $items;
-    }
+                foreach ($keys as $key) {
+                    $items[$key] = $this->hasItem($key) ?
+                        clone $this->items[$key] :
+                        $this->getTestMemoryCacheItem($key);
+                }
 
-    public function hasItem($key): bool
-    {
-        return isset($this->items[$key]) && $this->items[$key]->isHit();
-    }
+                return $items;
+            }
 
-    public function clear(): bool
-    {
-        $this->items = [];
-        $this->deferredItems = [];
+            public function hasItem($key): bool
+            {
+                return isset($this->items[$key]) && $this->items[$key]->isHit();
+            }
 
-        return true;
-    }
+            public function clear(): bool
+            {
+                $this->items = [];
+                $this->deferredItems = [];
 
-    public function deleteItem($key): bool
-    {
-        return $this->deleteItems([$key]);
-    }
+                return true;
+            }
 
-    public function deleteItems(array $keys): bool
-    {
-        foreach ($keys as $key) {
-            unset($this->items[$key]);
-        }
+            public function deleteItem($key): bool
+            {
+                return $this->deleteItems([$key]);
+            }
 
-        return true;
-    }
+            public function deleteItems(array $keys): bool
+            {
+                foreach ($keys as $key) {
+                    unset($this->items[$key]);
+                }
 
-    public function save(CacheItemInterface $item): bool
-    {
-        $this->items[$item->getKey()] = $item;
+                return true;
+            }
 
-        return true;
-    }
+            public function save(CacheItemInterface $item): bool
+            {
+                $this->items[$item->getKey()] = $item;
 
-    public function saveDeferred(CacheItemInterface $item): bool
-    {
-        $this->deferredItems[$item->getKey()] = $item;
+                return true;
+            }
 
-        return true;
-    }
+            public function saveDeferred(CacheItemInterface $item): bool
+            {
+                $this->deferredItems[$item->getKey()] = $item;
 
-    public function commit(): bool
-    {
-        foreach ($this->deferredItems as $item) {
-            $this->save($item);
-        }
+                return true;
+            }
 
-        $this->deferredItems = [];
+            public function commit(): bool
+            {
+                foreach ($this->deferredItems as $item) {
+                    $this->save($item);
+                }
 
-        return true;
-    }
-}
+                $this->deferredItems = [];
 
-/**
- * A cache item.
- */
-final class TestMemoryCacheItem implements CacheItemInterface
-{
-    private $key;
-    private $value;
-    private $expiration;
-    private $isHit = false;
+                return true;
+            }
 
-    public function __construct(string $key)
-    {
-        $this->key = $key;
-    }
+            private function getTestMemoryCacheItem(string $key)
+            {
+                return new class($key) implements CacheItemInterface{
+                    private $key;
+                    private $value;
+                    private $expiration;
+                    private $isHit = false;
 
-    public function getKey(): string
-    {
-        return $this->key;
-    }
+                    public function __construct(string $key)
+                    {
+                        $this->key = $key;
+                    }
 
-    public function get(): mixed
-    {
-        return $this->isHit() ? $this->value : null;
-    }
+                    public function getKey(): string
+                    {
+                        return $this->key;
+                    }
 
-    public function isHit(): bool
-    {
-        if (!$this->isHit) {
-            return false;
-        }
+                    public function get(): mixed
+                    {
+                        return $this->isHit() ? $this->value : null;
+                    }
 
-        if ($this->expiration === null) {
-            return true;
-        }
+                    public function isHit(): bool
+                    {
+                        if (!$this->isHit) {
+                            return false;
+                        }
 
-        return $this->currentTime()->getTimestamp() < $this->expiration->getTimestamp();
-    }
+                        if ($this->expiration === null) {
+                            return true;
+                        }
 
-    public function set(mixed $value): static
-    {
-        $this->isHit = true;
-        $this->value = $value;
+                        return $this->currentTime()->getTimestamp() < $this->expiration->getTimestamp();
+                    }
 
-        return $this;
-    }
+                    public function set(mixed $value): static
+                    {
+                        $this->isHit = true;
+                        $this->value = $value;
 
-    public function expiresAt($expiration): static
-    {
-        $this->expiration = $expiration;
-        return $this;
-    }
+                        return $this;
+                    }
 
-    public function expiresAfter($time): static
-    {
-        $this->expiration = $this->currentTime()->add(new \DateInterval("PT{$time}S"));
-        return $this;
-    }
+                    public function expiresAt($expiration): static
+                    {
+                        $this->expiration = $expiration;
+                        return $this;
+                    }
 
-    protected function currentTime()
-    {
-        return new \DateTime('now', new \DateTimeZone('UTC'));
+                    public function expiresAfter($time): static
+                    {
+                        $this->expiration = $this->currentTime()->add(new \DateInterval("PT{$time}S"));
+                        return $this;
+                    }
+
+                    protected function currentTime()
+                    {
+                        return new \DateTime('now', new \DateTimeZone('UTC'));
+                    }
+                };
+            }
+        };
     }
 }

@@ -108,7 +108,7 @@ class JWKTest extends TestCase
         $publicKey = openssl_pkey_get_details($keyMaterial)['key'];
 
         $this->assertEquals(
-            file_get_contents(__DIR__ . '/data/' . $pubkeyFile),
+            str_replace("\r\n", "\n", file_get_contents(__DIR__ . '/data/' . $pubkeyFile)),
             $publicKey
         );
     }
@@ -121,7 +121,7 @@ class JWKTest extends TestCase
         ];
     }
 
-    public function testParseJwkKey_empty()
+    public function testParseJwkKeyEmpty()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('JWK must not be empty');
@@ -129,7 +129,7 @@ class JWKTest extends TestCase
         JWK::parseKeySet(['keys' => [[]]]);
     }
 
-    public function testParseJwkKeySet_empty()
+    public function testParseJwkKeySetEmpty()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('JWK Set did not contain any keys');
@@ -258,7 +258,10 @@ class JWKTest extends TestCase
         $jwk = [
             'alg' => 'RS256',
             'kty' => 'RSA',
-            'n' => 'hsYvCPtkUV7SIxwkOkJsJfhwV_CMdXU5i0UmY2QEs-Pa7v0-0y-s4EjEDtsQ8Yow6hc670JhkGBcMzhU4DtrqNGROXebyOse5FX0m0UvWo1qXqNTf28uBKB990mY42Icr8sGjtOw8ajyT9kufbmXi3eZKagKpG0TDGK90oBEfoGzCxoFT87F95liNth_GoyU5S8-G3OqIqLlQCwxkI5s-g2qvg_aooALfh1rhvx2wt4EJVMSrdnxtPQSPAtZBiw5SwCnVglc6OnalVNvAB2JArbqC9GAzzz9pApAk28SYg5a4hPiPyqwRv-4X1CXEK8bO5VesIeRX0oDf7UoM-pVAw',
+            'n' => 'hsYvCPtkUV7SIxwkOkJsJfhwV_CMdXU5i0UmY2QEs-Pa7v0-0y-s4EjEDtsQ8Yow6hc670JhkGBcMzhU4DtrqNGROXebyO' .
+                'se5FX0m0UvWo1qXqNTf28uBKB990mY42Icr8sGjtOw8ajyT9kufbmXi3eZKagKpG0TDGK90oBEfoGzCxoFT87F95liNth_Goy' .
+                'U5S8-G3OqIqLlQCwxkI5s-g2qvg_aooALfh1rhvx2wt4EJVMSrdnxtPQSPAtZBiw5SwCnVglc6OnalVNvAB2JArbqC9GAzzz9' .
+                'pApAk28SYg5a4hPiPyqwRv-4X1CXEK8bO5VesIeRX0oDf7UoM-pVAw',
             'use' => 'sig',
             'e' => 'AQAB',
             'kid' => '838c06c62046c2d948affe137dd5310129f4d5d1'
@@ -272,18 +275,18 @@ class JWKTest extends TestCase
         $keyData = openssl_pkey_get_details($pubKey);
 
         $expectedPublicKey = <<<EOF
------BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhsYvCPtkUV7SIxwkOkJs
-JfhwV/CMdXU5i0UmY2QEs+Pa7v0+0y+s4EjEDtsQ8Yow6hc670JhkGBcMzhU4Dtr
-qNGROXebyOse5FX0m0UvWo1qXqNTf28uBKB990mY42Icr8sGjtOw8ajyT9kufbmX
-i3eZKagKpG0TDGK90oBEfoGzCxoFT87F95liNth/GoyU5S8+G3OqIqLlQCwxkI5s
-+g2qvg/aooALfh1rhvx2wt4EJVMSrdnxtPQSPAtZBiw5SwCnVglc6OnalVNvAB2J
-ArbqC9GAzzz9pApAk28SYg5a4hPiPyqwRv+4X1CXEK8bO5VesIeRX0oDf7UoM+pV
-AwIDAQAB
------END PUBLIC KEY-----
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhsYvCPtkUV7SIxwkOkJs
+        JfhwV/CMdXU5i0UmY2QEs+Pa7v0+0y+s4EjEDtsQ8Yow6hc670JhkGBcMzhU4Dtr
+        qNGROXebyOse5FX0m0UvWo1qXqNTf28uBKB990mY42Icr8sGjtOw8ajyT9kufbmX
+        i3eZKagKpG0TDGK90oBEfoGzCxoFT87F95liNth/GoyU5S8+G3OqIqLlQCwxkI5s
+        +g2qvg/aooALfh1rhvx2wt4EJVMSrdnxtPQSPAtZBiw5SwCnVglc6OnalVNvAB2J
+        ArbqC9GAzzz9pApAk28SYg5a4hPiPyqwRv+4X1CXEK8bO5VesIeRX0oDf7UoM+pV
+        AwIDAQAB
+        -----END PUBLIC KEY-----
 
-EOF;
+        EOF;
 
-        $this->assertEquals($expectedPublicKey, $keyData['key']);
+        $this->assertEquals(str_replace("\r\n", "\n", $expectedPublicKey), $keyData['key']);
     }
 }

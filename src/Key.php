@@ -17,8 +17,7 @@ class Key
         #[\SensitiveParameter] private $keyMaterial,
         private string $algorithm
     ) {
-        if (
-            !\is_string($keyMaterial)
+        if (!\is_string($keyMaterial)
             && !$keyMaterial instanceof OpenSSLAsymmetricKey
             && !$keyMaterial instanceof OpenSSLCertificate
         ) {
