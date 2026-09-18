@@ -44,6 +44,25 @@ class JWTTest extends TestCase
         JWT::jsonDecode('this is not valid JSON string');
     }
 
+    public function testBase64UrlDecode()
+    {
+        $decoded = JWT::urlsafeB64Decode('VGVzdCB3aXRoIGEgbWludXM-');
+        $expected = 'Test with a minus>';
+        $this->assertSame($expected, $decoded);
+    }
+
+    public function testMalformedBase64Url()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        JWT::urlsafeB64Decode('VGVzdCB3aXR&oIGEgbWludXM-');
+    }
+
+    public function testMalformedBase64UrlButValidBase64()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        JWT::urlsafeB64Decode('VGVzdCB3aXRoIGEgc2xhc2g/');
+    }
+
     public function testExpiredToken()
     {
         $this->expectException(ExpiredException::class);
