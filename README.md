@@ -5,7 +5,19 @@
 
 PHP-JWT
 =======
-A simple library to encode and decode JSON Web Tokens (JWT) in PHP, conforming to [RFC 7519](https://tools.ietf.org/html/rfc7519).
+A simple library to encode and decode JSON Web Tokens (JWT) in PHP, conforming to [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519).
+
+Supported Specifications
+------------------------
+
+- [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519) — JSON Web Token (JWT)
+- [RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515) — JSON Web Signature (JWS)
+- [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517) — JSON Web Key (JWK)
+- [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518) — JSON Web Algorithms (JWA) (`HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `PS256`)
+- [RFC 8037](https://datatracker.ietf.org/doc/html/rfc8037) — CFRG Elliptic Curve Diffie-Hellman (ECDH) and Signatures in JOSE (`EdDSA` / `Ed25519` and `OKP` JWKs)
+- [RFC 8812](https://datatracker.ietf.org/doc/html/rfc8812) — CBOR Object Signing and Encryption (COSE) and JSON Object Signing and Encryption (JOSE) Registrations for Web Authentication (WebAuthn) Algorithms (`ES256K` / `secp256k1`)
+
+> **Note:** This library only supports signed JWTs (JWS, [RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515)). Encrypted JWTs (JWE, [RFC 7516](https://datatracker.ietf.org/doc/html/rfc7516)) are not supported.
 
 Installation
 ------------
